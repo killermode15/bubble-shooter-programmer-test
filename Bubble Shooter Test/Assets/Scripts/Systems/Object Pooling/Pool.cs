@@ -13,8 +13,8 @@ namespace BubbleShooter
 
         // List of object pool data
         private List<PoolData> poolData;
-
-        private void Start()
+                            
+        private void Awake()
         {
             // Initialize object pool data list
             poolData = new List<PoolData>();
@@ -35,6 +35,40 @@ namespace BubbleShooter
             }
         }
 
+        /// <summary>
+        /// Instantiate/Enable a gameobject
+        /// </summary>
+        /// <param name="objIdentifier"></param>
+        /// <returns></returns>
+        public GameObject Instantiate(string objIdentifier)
+        {
+            PoolData pd = GetPoolData(objIdentifier);
+
+            if (pd == null)
+            {
+                throw new NullReferenceException("The identifier [" + objIdentifier + "] couldn't be found");
+            }
+            if (!pd.Data.Object)
+            {
+                throw new NullReferenceException("The object for [" + objIdentifier + "] is null");
+            }
+
+            GameObject spawnedObject = pd.GetInstance();
+
+            spawnedObject?.SetActive(true);
+            if (spawnedObject != null)
+            {
+                spawnedObject.transform.localPosition = Vector3.zero;
+            }
+            return spawnedObject;
+        }
+
+        /// <summary>
+        /// Instantiate/Enable a gameobject within a parent
+        /// </summary>
+        /// <param name="objIdentifier"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
         public GameObject Instantiate(string objIdentifier, Transform parent)
         {
             PoolData pd = GetPoolData(objIdentifier);
@@ -63,6 +97,13 @@ namespace BubbleShooter
             return spawnedObject;
         }
 
+        /// <summary>
+        /// Instantiate/Enable a gameobject with a given position and rotation
+        /// </summary>
+        /// <param name="objIdentifier"></param>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
         public GameObject Instantiate(string objIdentifier, Vector3 position, Quaternion rotation)
         {
             PoolData pd = GetPoolData(objIdentifier);
@@ -89,6 +130,10 @@ namespace BubbleShooter
             return spawnedObject;
         }
 
+        /// <summary>
+        /// Destroy/Disable a gameobject
+        /// </summary>
+        /// <param name="obj"></param>
         public void Destroy(GameObject obj)
         {
             PoolData pd = GetPoolData(obj);
@@ -101,11 +146,20 @@ namespace BubbleShooter
             }
         }
 
+        /// <summary>
+        /// Destroy/Disable a gameobject with delay
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="delay"></param>
         public void Destroy(GameObject obj, float delay)
         {
             StartCoroutine(DestroyCR(obj, delay));
         }
 
+        /// <summary>
+        /// Disables all the object in the specified object pool
+        /// </summary>
+        /// <param name="objIdentifier"></param>
         public void ResetPool(string objIdentifier)
         {
             PoolData poolData = GetPoolData(objIdentifier);
@@ -117,9 +171,28 @@ namespace BubbleShooter
             }
         }
 
+        /// <summary>
+        /// Returns true if the specified object pool is initialized
+        /// </summary>
+        /// <param name="objIdentifier"></param>
+        /// <returns></returns>
         public bool IsInitialized(string objIdentifier)
         {
             return GetPoolData(objIdentifier).IsInitialized;
+        }
+
+        /// <summary>
+        ///  Returns -1 if the pool data is invalid
+        /// </summary>
+        /// <param name="objIdentifier"></param>
+        /// <returns></returns>
+        public int GetCount(string objIdentifier)
+        {
+            if (GetPoolData(objIdentifier) == null ||
+                GetPoolData(objIdentifier).Data == null)
+                return -1;
+
+            return GetPoolData(objIdentifier).Data.PoolAmount;
         }
 
         private IEnumerator DestroyCR(GameObject obj, float delay)

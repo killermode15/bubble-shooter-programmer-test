@@ -85,9 +85,6 @@ namespace BubbleShooter
             }
 
             dotPositions.Add(hit.point);
-            //DrawPath(dotPositions);
-
-
         }
 
         private void CalculatePath(RaycastHit2D previousHit, Vector2 directionIn)
@@ -110,12 +107,7 @@ namespace BubbleShooter
                 Vector2 newCastPoint = previousHit.point + (2 * reflection);
 
                 RaycastHit2D hit = Physics2D.Raycast(newCastPoint, reflection);
-
-                //if (!hit.collider)
-                //{
-                //    DrawPath(dotPositions);
-                //    break;
-                //}
+                
                 if (!hit.collider) break;
 
                 if (hit.collider.CompareTag(WALL_TAG))
@@ -127,7 +119,6 @@ namespace BubbleShooter
                 else
                 {
                     dotPositions.Add(hit.point);
-                    //DrawPath(dotPositions);
                 }
 
                 break;

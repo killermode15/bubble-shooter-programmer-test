@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 75424333}
   - component: {fileID: 75424332}
   - component: {fileID: 75424334}
+  - component: {fileID: 75424335}
   m_Layer: 0
   m_Name: ShooterUI
   m_TagString: Untagged
@@ -217,7 +218,21 @@ MonoBehaviour:
   pool: {fileID: 1898313272}
   bubblePosition: {fileID: 261626472}
   colorsGameObject: []
-  mouseDown: 0
+--- !u!114 &75424335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75424331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c02e038073c90d74ca8f7f55c613ac5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pool: {fileID: 1898313272}
+  dotGapSize: 0.36
+  maxDots: 15
 --- !u!1 &255599966
 GameObject:
   m_ObjectHideFlags: 0
