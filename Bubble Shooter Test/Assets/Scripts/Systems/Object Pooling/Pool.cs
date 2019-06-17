@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -7,12 +8,15 @@ namespace BubbleShooter
 {
     public class Pool : MonoBehaviour
     {
-        [SerializeField] private List<ObjectData> objectData;
+        // List of objects to pool
+        [SerializeField] private List<ObjectData> objectData = new List<ObjectData>();
 
+        // List of object pool data
         private List<PoolData> poolData;
 
         private void Start()
         {
+            // Initialize object pool data list
             poolData = new List<PoolData>();
             foreach (ObjectData data in objectData)
             {
@@ -20,19 +24,14 @@ namespace BubbleShooter
                 poolData.Add(pd);
             }
 
+            // Spawn the object data for each pool data
             foreach (PoolData data in poolData)
             {
+                // Make a parent for all the pooled object under this pool data
                 GameObject poolParent = new GameObject("Object Pool [" + data.Data.Identifier + "]");
 
-                for (int j = 0; j < data.Data.PoolAmount; j++)
-                {
-                    GameObject obj = Instantiate(data.Data.Object, poolParent.transform);
-                    PooledObject pooledObject = obj.AddComponent<PooledObject>();
-                    pooledObject.Identifier = data.Data.Identifier;
-                    pooledObject.OriginalParent = poolParent.transform;
-                    data.SpawnPool.Add(obj);
-                    obj.SetActive(false);
-                }
+                // Initialize pool data with values
+                data.Initialize(poolParent);
             }
         }
 
@@ -42,15 +41,25 @@ namespace BubbleShooter
 
             if (pd == null)
             {
-                Debug.LogWarning("The identifier [" + objIdentifier + "] couldn't be found", this);
-                return null;
+                throw new NullReferenceException("The identifier [" + objIdentifier + "] couldn't be found");
+            }
+            if (!pd.Data.Object)
+            {
+                throw new NullReferenceException("The object for [" + objIdentifier + "] is null");
+            }
+            if (!parent)
+            {
+                Debug.Log("Parent is null");
             }
 
 
             GameObject spawnedObject = pd.GetInstance();
-            spawnedObject.SetActive(true);
-            spawnedObject.transform.SetParent(parent);
-            spawnedObject.transform.localPosition = Vector3.zero;
+            spawnedObject?.SetActive(true);
+            spawnedObject?.transform.SetParent(parent);
+            if (spawnedObject != null)
+            {
+                spawnedObject.transform.localPosition = Vector3.zero;
+            }
             return spawnedObject;
         }
 
@@ -60,21 +69,23 @@ namespace BubbleShooter
 
             if (pd == null)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("The identifier [");
-                sb.Append(objIdentifier);
-                sb.Append("] couldn't be found");
-                Debug.LogWarning(sb.ToString(), this);
-                return null;
+                throw new NullReferenceException("The identifier [" + objIdentifier + "] couldn't be found");
+            }
+
+            if (!pd.Data.Object)
+            {
+                throw new NullReferenceException("The object for [" + objIdentifier + "] is null");
             }
 
 
             GameObject spawnedObject = pd.GetInstance();
-            spawnedObject.SetActive(true);
+            spawnedObject?.SetActive(true);
+
+            if (spawnedObject == null) throw new NullReferenceException("");
+
             spawnedObject.transform.position = position;
             spawnedObject.transform.rotation = rotation;
             //pd.CurrentIndex++;
-
             return spawnedObject;
         }
 
@@ -90,9 +101,31 @@ namespace BubbleShooter
             }
         }
 
-        public IEnumerator Destroy(GameObject obj, float delay)
+        public void Destroy(GameObject obj, float delay)
+        {
+            StartCoroutine(DestroyCR(obj, delay));
+        }
+
+        public void ResetPool(string objIdentifier)
+        {
+            PoolData poolData = GetPoolData(objIdentifier);
+
+            foreach (GameObject poolObject in poolData.SpawnPool)
+            {
+                poolObject.transform.position = Vector3.zero;
+                poolObject.SetActive(false);
+            }
+        }
+
+        public bool IsInitialized(string objIdentifier)
+        {
+            return GetPoolData(objIdentifier).IsInitialized;
+        }
+
+        private IEnumerator DestroyCR(GameObject obj, float delay)
         {
             yield return new WaitForSeconds(delay);
+            if (!obj) yield break;
             Destroy(obj);
         }
 
