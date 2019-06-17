@@ -163,7 +163,7 @@ namespace BubbleShooter
         public void ResetPool(string objIdentifier)
         {
             PoolData poolData = GetPoolData(objIdentifier);
-
+            poolData.CurrentIndex = 0;
             foreach (GameObject poolObject in poolData.SpawnPool)
             {
                 poolObject.transform.position = Vector3.zero;

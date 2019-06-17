@@ -215,9 +215,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb124c9e7484fb84c8e897e6dd2e01a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pool: {fileID: 1898313272}
-  bubblePosition: {fileID: 261626472}
-  colorsGameObject: []
+  currentBubble: {fileID: 261626472}
+  dotPool: {fileID: 1898313272}
+  maxDots: 0
 --- !u!114 &75424335
 MonoBehaviour:
   m_ObjectHideFlags: 0

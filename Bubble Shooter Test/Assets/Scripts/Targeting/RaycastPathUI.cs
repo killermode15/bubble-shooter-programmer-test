@@ -24,14 +24,14 @@ public class RaycastPathUI : MonoBehaviour
 
         for (int i = 0; i < maxDots; i++)
         {
-            GameObject dot = pool.Instantiate(POOL_IDENTIFIER);
-            SpriteRenderer spriteRenderer = dot.GetComponent<SpriteRenderer>();
+            //GameObject dot = pool.Instantiate(POOL_IDENTIFIER);
+            //SpriteRenderer spriteRenderer = dot.GetComponent<SpriteRenderer>();
 
-            Color spriteColor = spriteRenderer.color;
+            //Color spriteColor = spriteRenderer.color;
 
-            spriteColor.a = startAlpha - alpha;
-            startAlpha -= alpha;
-            spriteRenderer.color = spriteColor;
+            //spriteColor.a = startAlpha - alpha;
+            //startAlpha -= alpha;
+            //spriteRenderer.color = spriteColor;
         }
     }
 
@@ -43,7 +43,7 @@ public class RaycastPathUI : MonoBehaviour
 
     private void DisplayPath(List<Vector3> dots)
     {
-        //pool.ResetPool(POOL_IDENTIFIER);
+        pool.ResetPool(POOL_IDENTIFIER);
 
         //float alpha = 1.0f / maxDots;
         //float startAlpha = 1.0f;

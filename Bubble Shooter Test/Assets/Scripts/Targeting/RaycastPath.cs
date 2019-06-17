@@ -107,7 +107,7 @@ namespace BubbleShooter
                 Vector2 newCastPoint = previousHit.point + (2 * reflection);
 
                 RaycastHit2D hit = Physics2D.Raycast(newCastPoint, reflection);
-                
+
                 if (!hit.collider) break;
 
                 if (hit.collider.CompareTag(WALL_TAG))
