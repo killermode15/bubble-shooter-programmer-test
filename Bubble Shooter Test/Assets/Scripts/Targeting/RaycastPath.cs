@@ -16,8 +16,8 @@ namespace BubbleShooter
             private set => dotPositions = value;
         }
 
-        [SerializeField] private Pool pool;
-        [SerializeField] private Transform bubblePosition;
+        [SerializeField] private Pool pool = null;
+        [SerializeField] private Transform bubblePosition = null;
 
         [SerializeField] private GameObject[] colorsGameObject;
 
@@ -75,8 +75,13 @@ namespace BubbleShooter
 
             Vector2 direction = new Vector2(point.x - bubblePosition.position.x, point.y - bubblePosition.position.y);
             RaycastHit2D hit = Physics2D.Raycast(bubblePosition.position, direction);
+
+            Debug.DrawRay(bubblePosition.position, direction.normalized * (Vector2.Distance(new Vector2(bubblePosition.position.x, bubblePosition.position.y), hit.point)));
+
             if (!hit.collider)
                 return;
+
+            dotPositions.Add(bubblePosition.position);
 
             if (hit.collider.CompareTag(WALL_TAG))
             {
@@ -91,7 +96,7 @@ namespace BubbleShooter
         {
             while (true)
             {
-                if (dotPositions.Count > 30)
+                if (dotPositions.Count > 1000)
                     return;
 
                 // Add the previous hit to the list of dot positions
@@ -104,20 +109,29 @@ namespace BubbleShooter
                 // Calculate the reflection vector
                 Vector2 reflection = new Vector2(-Mathf.Cos(newDir), -Mathf.Sin(newDir));
                 // Create new raycast start point
-                Vector2 newCastPoint = previousHit.point + (2 * reflection);
+                Vector2 newCastPoint = previousHit.point + (reflection.normalized / 100);
 
                 RaycastHit2D hit = Physics2D.Raycast(newCastPoint, reflection);
 
-                if (!hit.collider) break;
+                Debug.DrawRay(hit.point, hit.normal);
+                Debug.DrawRay(previousHit.point, reflection * (Vector2.Distance(previousHit.point, hit.point)));
+
+                if (!hit.collider)
+                {
+                    //Debug.Log("Hit something without collider");
+                    break;
+                }
 
                 if (hit.collider.CompareTag(WALL_TAG))
                 {
+                    //Debug.Log("Hit a wall", hit.collider.gameObject);
                     previousHit = hit;
                     directionIn = reflection;
                     continue;
                 }
                 else
                 {
+                    //Debug.Log("Hit something", hit.collider.gameObject);
                     dotPositions.Add(hit.point);
                 }
 

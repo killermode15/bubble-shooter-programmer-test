@@ -8,10 +8,15 @@ public class RaycastPathUI : MonoBehaviour
 {
     private const string POOL_IDENTIFIER = "Dots";
 
-    [SerializeField] private Pool pool;
-    [SerializeField] private float dotGapSize;
-    [SerializeField] private int maxDots;
-
+    // Reference to object pool
+    [SerializeField] private Pool pool = null;
+    // Gap size between the dots in the sub path
+    [SerializeField] private float dotGapSize = 0.36f;
+    // Maximum number of dots that can be displayed
+    [SerializeField] private int maxDots = 15;
+    // Max number of bounces to display
+    [SerializeField] private int maxBounce = 2;
+    
     private RaycastPath path;
 
     // Start is called before the first frame update
@@ -24,14 +29,14 @@ public class RaycastPathUI : MonoBehaviour
 
         for (int i = 0; i < maxDots; i++)
         {
-            //GameObject dot = pool.Instantiate(POOL_IDENTIFIER);
-            //SpriteRenderer spriteRenderer = dot.GetComponent<SpriteRenderer>();
+            GameObject dot = pool.Instantiate(POOL_IDENTIFIER);
+            SpriteRenderer spriteRenderer = dot.GetComponent<SpriteRenderer>();
 
-            //Color spriteColor = spriteRenderer.color;
+            Color spriteColor = spriteRenderer.color;
 
-            //spriteColor.a = startAlpha - alpha;
-            //startAlpha -= alpha;
-            //spriteRenderer.color = spriteColor;
+            spriteColor.a = startAlpha - alpha;
+            startAlpha -= alpha;
+            spriteRenderer.color = spriteColor;
         }
     }
 
@@ -45,52 +50,39 @@ public class RaycastPathUI : MonoBehaviour
     {
         pool.ResetPool(POOL_IDENTIFIER);
 
-        //float alpha = 1.0f / maxDots;
-        //float startAlpha = 1.0f;
-
-        //foreach (Vector3 dotPosition in dots)
-        foreach (Vector3 dotPosition in dots)
+        for (int i = 1; i < maxBounce + 1; i++)
         {
-            //if (i > dots.Count) break;
-
-            //Debug.Log(i + " - " + pool.GetCount(POOL_IDENTIFIER));
-
-            GameObject dot = pool.Instantiate(POOL_IDENTIFIER, dotPosition, Quaternion.identity);
-            //SpriteRenderer spriteRenderer = dot.GetComponent<SpriteRenderer>();
-
-            //Color spriteColor = spriteRenderer.color;
-
-            //spriteColor.a = startAlpha - alpha;
-            //startAlpha -= alpha;
-            //spriteRenderer.color = spriteColor;
+            DisplaySubPath(dots, i - 1, i);
         }
     }
 
-    //private void DiplaySubPath(List<Vector3> dots, int start, int end)
-    //{
-    //    if (dots.Count < end)
-    //        return;
+    private void DisplaySubPath(List<Vector3> dots, int start, int end)
+    {
+        // If the start or end is higher or equal to the number of dot positions, return
+        if (dots.Count <= start || dots.Count <= end)
+            return;
 
-    //    float pathLength = Vector2.Distance(dots[start], dots[end]);
-    //    int numberOfDots = Mathf.RoundToInt((float) pathLength / dotGapSize);
-    //    float dotProgress = 1.0f / numberOfDots;
+        // Get the length of two main adjacent dots
+        float pathLength = Vector2.Distance(dots[start], dots[end]);
+        // Get the number of dots to display between the two main adjacent dots
+        int numberOfDots = Mathf.RoundToInt((float)pathLength / dotGapSize);
+        // Get the progression for the number of dots
+        float dotProgress = 1.0f / numberOfDots;
 
-    //    int dotCount = 0;
+        // Number of visible dots
+        int dotCount = 0;
 
-    //    for (float perc = 0; perc < 1; perc += dotProgress)
-    //    {
-    //        float nextX = dots[start].x + perc * (dots[end].x - dots[start].x);
-    //        float nextY = dots[start].y + perc * (dots[end].y - dots[start].y);
-
-    //        if (dotCount < pool.GetCount(POOL_IDENTIFIER))
-    //        {
-    //            GameObject dot = pool.Instantiate(POOL_IDENTIFIER, new Vector2(nextX, nextY), Quaternion.identity);
-    //            dotCount++;
-    //        }
-
-    //        perc += dotProgress;
-    //    }
-    //}
+        for (float perc = 0; perc < 1; perc += dotProgress)
+        {
+            if (dotCount < pool.GetCount(POOL_IDENTIFIER) && dotCount < maxDots)
+            {
+                GameObject dot = pool.Instantiate(POOL_IDENTIFIER);
+                dot.transform.position = Vector2.Lerp(dots[start], dots[end], perc);
+                dotCount++;
+            }
+            perc += dotProgress;
+        }
+    }
 
 }
 
