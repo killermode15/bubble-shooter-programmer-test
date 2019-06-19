@@ -13,9 +13,7 @@ namespace BubbleShooter
         [SerializeField] private RaycastPath raycastPath = null;
         [SerializeField] private List<BubbleData> bubbleTypes = null;
         [SerializeField] private float bubbleSpeed = 0.15f;
-
-        private float shootProgress = 0;
-        private float progressIncrement = 0;
+        
 
         private bool canShoot = true;
         private GameObject firedBubble = null;
@@ -23,58 +21,37 @@ namespace BubbleShooter
 
         private void Start()
         {
-            firedBubble = Instantiate(bubblePrefab, bubblePosition);
-            firedBubble.transform.position = bubblePosition.position;
-
-            BubbleData randomBubbleData = GetRandomBubbleData();
-            Bubble bubble = firedBubble.GetComponent<Bubble>();
-            bubble.InitializeBubble(bubbleSpeed, randomBubbleData);
+            
         }
 
         // Update is called once per frame
         private void Update()
         {
-            #region old code
-            //if (firedBubble.gameObject.activeSelf)
-            //{
-            //    shootProgress += progressIncrement;
+            if (!firedBubble)
+            {
+                firedBubble = Instantiate(bubblePrefab);
+                firedBubble.transform.SetParent(bubblePosition);
+                firedBubble.transform.position = bubblePosition.position;
 
-            //    if (shootProgress > 1)
-            //    {
-            //        targetPath.RemoveAt(0);
+                raycastPath.GeneratePath(Input.mousePosition);
+                targetPath = raycastPath.DotPositions;
 
-            //        if (targetPath.Count < 2)
-            //        {
-            //            //canShoot = true;
-            //            firedBubble.gameObject.SetActive(false);
-            //            return;
-            //        }
-            //        else
-            //        {
-            //            InitPath();
-            //            canShoot = false;
-            //        }
-            //    }
+                firedBubble.GetComponent<Bubble>().InitializePath(targetPath);
+                raycastPath.ResetPath(Input.mousePosition);
 
-            //    if (!bubblePrefab || targetPath == null) return;
-
-            //    firedBubble.transform.position = Vector2.Lerp(targetPath[0], targetPath[1], shootProgress);
-            //    return;
-            //}
-            #endregion
+                InitializeBubble();
+            }
 
             Bubble bubble = firedBubble.GetComponent<Bubble>();
 
             if (bubble.IsMoving) return;
 
-            if (Input.GetMouseButtonDown(0))
+            if (!bubble.IsInitialized)
             {
                 firedBubble.SetActive(true);
                 if (!bubble.IsMoving)
                 {
-                    BubbleData randomBubbleData = GetRandomBubbleData();
-                    bubble.InitializeBubble(bubbleSpeed, randomBubbleData);
-                    firedBubble.transform.position = bubblePosition.position;
+                    InitializeBubble();
                 }
 
             }
@@ -88,29 +65,16 @@ namespace BubbleShooter
             if (Input.GetMouseButtonUp(0))
             {
                 bubble.InitializePath(targetPath);
-
-                Debug.Log("TEST");
-
-
-
                 raycastPath.ResetPath(Input.mousePosition);
-
-                //shootProgress = 0;
-                //firedBubble.gameObject.SetActive(true);
-                //firedBubble.transform.position = bubblePosition.position;
-                //InitPath();
 
             }
         }
 
-        private void InitPath()
+        private void InitializeBubble()
         {
-            Vector2 start = targetPath[0];
-            Vector2 end = targetPath[1];
-            float length = Vector2.Distance(start, end);
-            float iterations = length / bubbleSpeed;
-            shootProgress = 0f;
-            progressIncrement = 1.0f / iterations;
+            BubbleData randomBubbleData = GetRandomBubbleData();
+            Bubble bubble = firedBubble.GetComponent<Bubble>();
+            bubble.InitializeBubble(bubbleSpeed, randomBubbleData);
         }
 
         private BubbleData GetRandomBubbleData()

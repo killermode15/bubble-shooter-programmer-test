@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,12 +16,20 @@ namespace BubbleShooter
 
     public class Bubble : MonoBehaviour
     {
+
         public BubbleData BubbleData => bubbleData;
         public bool IsMoving => isMoving;
         public bool IsInitialized => isInitialized;
 
+        public bool IsStatic
+        {
+            get => isStatic;
+            set => isStatic = value;
+        }
+
         [SerializeField] private BubbleData bubbleData = null;
 
+        private bool isStatic = false;
         private bool isInitialized = false;
         private bool isMoving = false;
         private float bubbleSpeed = 0.15f;
@@ -36,7 +45,14 @@ namespace BubbleShooter
 
         private void Update()
         {
-            if (!gameObject.activeSelf || path == null) return;
+
+            if (!isInitialized)
+            {
+                isMoving = false;
+                return;
+            }
+
+            if (path == null) return;
 
             pathProgress += progressionSpeed;
 
@@ -46,8 +62,7 @@ namespace BubbleShooter
 
                 if (path.Count < 2)
                 {
-                    isMoving = false;
-                    isInitialized = false;
+                    OnPathEnd();
                     return;
                 }
                 else
@@ -55,8 +70,8 @@ namespace BubbleShooter
                     InitializePath(path);
                 }
             }
-
             if (path.Count == 0) return;
+
             transform.position = Vector2.Lerp(path[0], path[1], pathProgress);
         }
 
@@ -66,6 +81,8 @@ namespace BubbleShooter
                 spriteRenderer = GetComponent<SpriteRenderer>();
 
             if (isInitialized) return;
+
+            gameObject.SetActive(true);
             isInitialized = true;
             bubbleSpeed = speed;
             bubbleData = bubbleType;
@@ -74,10 +91,12 @@ namespace BubbleShooter
 
         public void InitializePath(List<Vector3> newPath)
         {
-            path = new List<Vector3>(newPath);
 
             if (newPath == null) throw new NullReferenceException("Path not found ");
+            path = new List<Vector3>(newPath);
             if (path.Count == 0) return;
+
+            GetComponent<CircleCollider2D>().enabled = true;
 
             Vector2 start = path[0];
             Vector2 end = path[1];
@@ -88,6 +107,105 @@ namespace BubbleShooter
             progressionSpeed = 1.0f / iteration;
 
             isMoving = true;
+            //Shoot();
         }
+
+        private void OnPathEnd()
+        {
+            isMoving = false;
+            isInitialized = false;
+            transform.localPosition = Vector3.zero;
+            GetComponent<CircleCollider2D>().enabled = false;
+            path = null;
+        }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (isStatic || !isInitialized || !IsMoving) return;
+
+            if (collision.gameObject.CompareTag("Top Wall") || collision.gameObject.CompareTag("Bubble"))
+            {
+                Destroy(gameObject);
+                Vector2 hitPoint = collision.contacts[0].point;
+                BubbleGridObject cell = FindObjectOfType<BubbleGrid>().FindCell(hitPoint);
+                cell.GetComponent<CircleCollider2D>().enabled = true;
+
+                Bubble bubbleScript = cell.GetComponent<Bubble>();
+                bubbleScript.InitializeBubble(0, bubbleData);
+                bubbleScript.isStatic = true;
+            }
+        }
+
+        //private void OnTriggerEnter2D(Collider2D collision)
+        //{
+        //    if(collision.CompareTag("Top Wall"))
+        //    {
+        //        BubbleGridObject cell = FindObjectOfType<BubbleGrid>().FindCell(transform.position);
+        //        cell.GetComponent<CircleCollider2D>().enabled = true;
+        //        cell.GetComponent<CircleCollider2D>().isTrigger = true;
+
+        //        Bubble bubbleScript = cell.GetComponent<Bubble>();
+        //        bubbleScript.InitializeBubble(0, bubbleData);
+        //        bubbleScript.isStatic = true;
+        //        Debug.Log("TEST");
+        //    }
+
+        //    if (!collision.CompareTag("Bubble") || isStatic) return;
+
+        //    Bubble bubble = collision.GetComponent<Bubble>();
+        //    if (!bubble.IsInitialized) return;
+
+        //    Destroy(gameObject);
+        //    bubble.InitializeBubble(0, bubbleData);
+        //}
+
+
+
+        #region Test Code
+
+        public void Shoot()
+        {
+            StartCoroutine(MoveBubbleCR());
+        }
+
+        private IEnumerator MoveBubbleCR()
+        {
+            if (path == null) yield break;
+            if (path.Count == 0) yield break;
+            if (!isInitialized) yield break;
+
+            Vector3 start = path[0];
+            Vector3 end = path[1];
+
+            float length = Vector2.Distance(start, end);
+            float iteration = length / bubbleSpeed;
+
+            float pathProgress = 0;
+            float progressionSpeed = 1.0f / iteration;
+
+            while (pathProgress < 1 && path.Count > 2)
+            {
+                pathProgress += progressionSpeed;
+
+                path.RemoveAt(0);
+
+                if (path.Count < 2)
+                {
+                    OnPathEnd();
+                    yield break;
+                }
+                else
+                {
+                    InitializePath(path);
+                }
+
+                if (path.Count == 0) yield break;
+
+                transform.position = Vector2.Lerp(path[0], path[1], pathProgress);
+
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        #endregion
     }
 }

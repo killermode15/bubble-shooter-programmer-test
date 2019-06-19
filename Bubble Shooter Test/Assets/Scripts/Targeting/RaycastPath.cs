@@ -18,22 +18,12 @@ namespace BubbleShooter
             set => canAim = value;
         }
 
-        [SerializeField] private Pool pool = null;
-        [SerializeField] private Transform bubblePosition = null;
-        [SerializeField] private GameObject[] colorsGameObject;
+        [SerializeField] private Pool pool                  = null;
+        [SerializeField] private Transform bubblePosition   = null;
+        [SerializeField] private LayerMask RaycastMask      = new LayerMask();
 
         private List<Vector3> dotPositions;
         private bool canAim = true;
-
-        #region shooting code
-
-        [SerializeField] private GameObject[] colorsGO;
-        [SerializeField] private float bulletProgress;
-        [SerializeField] private float bulletIncrement;
-        [SerializeField] private GameObject bullet;
-
-        #endregion
-
 
         // Start is called before the first frame update
         private void Start()
@@ -44,30 +34,6 @@ namespace BubbleShooter
         // Update is called once per frame
         private void Update()
         {
-
-            //if (bullet.gameObject.activeSelf)
-            //{
-            //    bulletProgress += bulletIncrement;
-
-            //    if (bulletProgress > 1)
-            //    {
-            //        dotPositions.RemoveAt(0);
-
-            //        if (dotPositions.Count < 2)
-            //        {
-            //            bullet.gameObject.SetActive(false);
-            //            return;
-            //        }
-            //        else
-            //        {
-            //            InitPath();
-            //        }
-            //    }
-
-            //    bullet.transform.position = Vector2.Lerp(dotPositions[0], dotPositions[1], bulletProgress);
-            //    return;
-            //}
-            //----------------
             if (!canAim)
                 return;
 
@@ -82,15 +48,6 @@ namespace BubbleShooter
 
             dotPositions.Clear();
             pool.ResetPool(POOL_IDENTIFIER);
-
-            //bulletProgress = 0;
-            ////bullet.SetType((Ball.BallType)type);
-            //bullet.gameObject.SetActive(true);
-            //bullet.transform.position = transform.position;
-            //InitPath();
-
-            ////---------
-            //SetNextType();
         }
 
         public void GeneratePath(Vector2 touch)
@@ -104,7 +61,7 @@ namespace BubbleShooter
                 return;
 
             Vector2 direction = new Vector2(point.x - bubblePosition.position.x, point.y - bubblePosition.position.y);
-            RaycastHit2D hit = Physics2D.Raycast(bubblePosition.position, direction);
+            RaycastHit2D hit = Physics2D.Raycast(bubblePosition.position, direction, RaycastMask);
 
             Debug.DrawRay(bubblePosition.position, direction.normalized * (Vector2.Distance(new Vector2(bubblePosition.position.x, bubblePosition.position.y), hit.point)));
 
@@ -141,7 +98,7 @@ namespace BubbleShooter
                 // Create new raycast start point
                 Vector2 newCastPoint = previousHit.point + (reflection.normalized / 100);
 
-                RaycastHit2D hit = Physics2D.Raycast(newCastPoint, reflection);
+                RaycastHit2D hit = Physics2D.Raycast(newCastPoint, reflection, RaycastMask);
 
                 Debug.DrawRay(hit.point, hit.normal);
                 Debug.DrawRay(previousHit.point, reflection * (Vector2.Distance(previousHit.point, hit.point)));
@@ -168,40 +125,5 @@ namespace BubbleShooter
                 break;
             }
         }
-
-        private void DrawPath(List<Vector3> dots)
-        {
-            pool.ResetPool(POOL_IDENTIFIER);
-
-            foreach (Vector3 dotPosition in dots)
-            {
-                pool.Instantiate(POOL_IDENTIFIER, dotPosition, Quaternion.identity);
-            }
-        }
-
-        #region shooting code
-
-        private void InitPath()
-        {
-            Vector2 start = dotPositions[0];
-            Vector2 end = dotPositions[1];
-            float length = Vector2.Distance(start, end);
-            float iterations = length / 0.15f;
-            bulletProgress = 0.0f;
-            bulletIncrement = 1.0f / iterations;
-        }
-
-        private void SetNextType()
-        {
-            foreach (GameObject go in colorsGO)
-            {
-                go.SetActive(false);
-            }
-
-            //type = Random.Range(0, 5);
-            //colorsGO[type].SetActive(true);
-        }
-
-        #endregion
     }
 }
