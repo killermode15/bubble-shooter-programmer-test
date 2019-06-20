@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ namespace BubbleShooter
                 return;
         }
 
-        public void ResetPath(Vector2 touch)
+        public void ResetPath()
         {
             if (dotPositions == null || dotPositions.Count < 2)
                 return;
@@ -53,12 +54,13 @@ namespace BubbleShooter
         public void GeneratePath(Vector2 touch)
         {
             if (dotPositions == null)
-                return;
+                throw new NullReferenceException("Dot Positions list is null");
 
             dotPositions.Clear();
             Vector2 point = Camera.main.ScreenToWorldPoint(touch);
+
             if (!bubblePosition)
-                return;
+                throw new NullReferenceException("The bubble position is null");
 
             Vector2 direction = new Vector2(point.x - bubblePosition.position.x, point.y - bubblePosition.position.y);
             RaycastHit2D hit = Physics2D.Raycast(bubblePosition.position, direction, RaycastMask);
@@ -66,7 +68,11 @@ namespace BubbleShooter
             Debug.DrawRay(bubblePosition.position, direction.normalized * (Vector2.Distance(new Vector2(bubblePosition.position.x, bubblePosition.position.y), hit.point)));
 
             if (!hit.collider)
+            {
+                Debug.Log("Nothing hit");
                 return;
+            }
+
 
             dotPositions.Add(bubblePosition.position);
 
@@ -105,20 +111,17 @@ namespace BubbleShooter
 
                 if (!hit.collider)
                 {
-                    //Debug.Log("Hit something without collider");
                     break;
                 }
 
                 if (hit.collider.CompareTag(WALL_TAG))
                 {
-                    //Debug.Log("Hit a wall", hit.collider.gameObject);
                     previousHit = hit;
                     directionIn = reflection;
                     continue;
                 }
                 else
                 {
-                    //Debug.Log("Hit something", hit.collider.gameObject);
                     dotPositions.Add(hit.point);
                 }
 

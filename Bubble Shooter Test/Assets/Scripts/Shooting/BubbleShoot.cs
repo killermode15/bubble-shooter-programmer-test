@@ -1,11 +1,91 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace BubbleShooter
 {
     public class BubbleShoot : MonoBehaviour
     {
+        [SerializeField] private Transform shootTransform = null;
+        [SerializeField] private GameObject bubblePrefab = null;
+        [SerializeField] private RaycastPath raycastPath = null;
+        [SerializeField] private List<BubbleData> bubbleDatas = null;
+        [SerializeField] private float shootSpeed = 0.15f;
+
+        private GameObject firedBubble;
+
+        private void Update()
+        {
+            if (!firedBubble)
+            {
+                firedBubble = GenerateBubble();
+            }
+
+            if (firedBubble && firedBubble.GetComponent<BubbleBullet>().IsMoving) return;
+
+            if (Input.GetMouseButton(0))
+            {
+                raycastPath.GeneratePath(Input.mousePosition);
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                Shoot();
+                raycastPath.ResetPath();
+            }
+        }
+
+        private void Shoot()
+        {
+            // Return if the bubble prefab is not set
+            if (!bubblePrefab) throw new NullReferenceException("Bubble bullet prefab is null");
+
+            if (!firedBubble) throw new NullReferenceException("Fired bubble is null");
+
+
+            BubbleBullet bubbleBullet = firedBubble?.GetComponent<BubbleBullet>();
+
+            // Return if bubbleBullet is null
+            if (!bubbleBullet) throw new NullReferenceException("Bubble bullet game object is null");
+
+            List<Vector3> path = raycastPath.DotPositions;
+
+            // Return if path is null or has nothing
+            if (path == null || path?.Count == 0) throw new NullReferenceException("Path has no content or is null");
+
+            bubbleBullet.Initialize(shootSpeed, path);
+            bubbleBullet.Shoot();
+        }
+
+        private BubbleData GetRandomBubbleData()
+        {
+            if (bubbleDatas == null)
+                return null;
+            if (bubbleDatas.Count == 0)
+                return null;
+
+            int randomIndex = Random.Range(0, bubbleDatas.Count);
+            return bubbleDatas[randomIndex];
+        }
+
+        private GameObject GenerateBubble()
+        {
+            GameObject bubble = Instantiate(bubblePrefab);
+            // Set the bubble's parent as the start position;
+            bubble.transform.SetParent(shootTransform);
+            bubble.transform.localPosition = Vector3.zero;
+
+            BubbleData bubbleData = GetRandomBubbleData();
+
+            // Return if no bubble data is generated
+            if (!bubbleData) throw new NullReferenceException("No bubble data generated");
+
+            bubble.GetComponent<BubbleBullet>().SetBubbleData(bubbleData);
+
+            return bubble;
+        }
+
+        /*
         public bool CanShoot => canShoot;
 
         [SerializeField] private Transform bubblePosition = null;
@@ -87,5 +167,6 @@ namespace BubbleShooter
             int randomIndex = Random.Range(0, bubbleTypes.Count);
             return bubbleTypes[randomIndex];
         }
+        */
     }
 }

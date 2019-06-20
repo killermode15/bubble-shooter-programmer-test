@@ -10,7 +10,7 @@ public struct HexCoordinates
     public int Y => y;
     public int Z => -X - Y;
 
-    public Vector3 VectorCoordinates => new Vector3(X,Y,Z);
+    public Vector3 VectorCoordinates => new Vector3(X, Y, Z);
 
     private int x, y;
 
@@ -47,7 +47,7 @@ public class BubbleGridObject : MonoBehaviour
     }
 
     [SerializeField] private HexCoordinates coordinates;
-    [SerializeField] private List<BubbleGridObject> neighbors;
+    [SerializeField] private List<BubbleGridObject> neighbors = null;
 
     public void AddNeighbor(BubbleGridObject neighbor)
     {

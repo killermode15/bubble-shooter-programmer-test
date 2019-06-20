@@ -2,6 +2,14 @@
 
 namespace BubbleShooter
 {
+    public enum BubbleColor
+    {
+        Red = 0,
+        Blue = 1,
+        Green = 2,
+        Violet = 3,
+        Yellow = 4,
+    }
 
     [System.Serializable]
     [CreateAssetMenu]

@@ -14,10 +14,10 @@ public class BubbleGrid : MonoBehaviour
 {
     private const int HEX_NEIGHBOR_COUNT = 6;
 
-    [SerializeField] private GameObject bubblePrefab = null;
-    [SerializeField] private int width = 10;
-    [SerializeField] private int height = 10;
-    [SerializeField] private float gapSize = 0.35f;
+    [SerializeField] private GameObject bubblePrefab    = null;
+    [SerializeField] private int width                  = 10;
+    [SerializeField] private int height                 = 10;
+    [SerializeField] private float gapSize              = 0.35f;
 
     private List<BubbleGridObject> grid;
 
@@ -60,8 +60,9 @@ public class BubbleGrid : MonoBehaviour
         // Make cell transparent
         cell.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.15f);
         // Set the cell as a static bubble
-        cell.GetComponent<Bubble>().IsStatic = true;
-        cell.GetComponent<CircleCollider2D>().enabled = false;
+        //cell.GetComponent<Bubble>().IsStatic = true;
+        //cell.GetComponent<CircleCollider2D>().enabled = false;
+
         // Set the cell's layer same as the component's gameobject
         cell.layer = gameObject.layer;
 
