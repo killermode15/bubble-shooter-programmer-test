@@ -8,21 +8,24 @@ namespace BubbleShooter
     public class BubbleShoot : MonoBehaviour
     {
         [SerializeField] private Transform shootTransform = null;
+        [SerializeField] private Transform nextBubbleTransform = null;
         [SerializeField] private GameObject bubblePrefab = null;
         [SerializeField] private RaycastPath raycastPath = null;
         [SerializeField] private List<BubbleData> bubbleDatas = null;
         [SerializeField] private float shootSpeed = 0.15f;
 
-        private GameObject firedBubble;
+        private GameObject preppedBubble;
+        private GameObject nextBubble;
 
         private void Update()
         {
-            if (!firedBubble)
+            if (!preppedBubble)
             {
-                firedBubble = GenerateBubble();
+                preppedBubble = GenerateBubble();
+                //GetNextBubble();
             }
 
-            if (firedBubble && firedBubble.GetComponent<BubbleBullet>().IsMoving) return;
+            if (preppedBubble && preppedBubble.GetComponent<BubbleBullet>().IsMoving) return;
 
             if (Input.GetMouseButton(0))
             {
@@ -40,10 +43,10 @@ namespace BubbleShooter
             // Return if the bubble prefab is not set
             if (!bubblePrefab) throw new NullReferenceException("Bubble bullet prefab is null");
 
-            if (!firedBubble) throw new NullReferenceException("Fired bubble is null");
+            if (!preppedBubble) throw new NullReferenceException("Fired bubble is null");
 
 
-            BubbleBullet bubbleBullet = firedBubble?.GetComponent<BubbleBullet>();
+            BubbleBullet bubbleBullet = preppedBubble?.GetComponent<BubbleBullet>();
 
             // Return if bubbleBullet is null
             if (!bubbleBullet) throw new NullReferenceException("Bubble bullet game object is null");
@@ -85,6 +88,13 @@ namespace BubbleShooter
             return bubble;
         }
 
+        private void GetNextBubble()
+        {
+            if (!nextBubbleTransform) throw new NullReferenceException("Next Bubble transform is null");
+
+            nextBubble = GenerateBubble();
+        }
+
         /*
         public bool CanShoot => canShoot;
 
@@ -96,7 +106,7 @@ namespace BubbleShooter
         
 
         private bool canShoot = true;
-        private GameObject firedBubble = null;
+        private GameObject preppedBubble = null;
         private List<Vector3> targetPath = null;
 
         private void Start()
@@ -107,28 +117,28 @@ namespace BubbleShooter
         // Update is called once per frame
         private void Update()
         {
-            if (!firedBubble)
+            if (!preppedBubble)
             {
-                firedBubble = Instantiate(bubblePrefab);
-                firedBubble.transform.SetParent(bubblePosition);
-                firedBubble.transform.position = bubblePosition.position;
+                preppedBubble = Instantiate(bubblePrefab);
+                preppedBubble.transform.SetParent(bubblePosition);
+                preppedBubble.transform.position = bubblePosition.position;
 
                 raycastPath.GeneratePath(Input.mousePosition);
                 targetPath = raycastPath.DotPositions;
 
-                firedBubble.GetComponent<Bubble>().InitializePath(targetPath);
+                preppedBubble.GetComponent<Bubble>().InitializePath(targetPath);
                 raycastPath.ResetPath(Input.mousePosition);
 
                 InitializeBubble();
             }
 
-            Bubble bubble = firedBubble.GetComponent<Bubble>();
+            Bubble bubble = preppedBubble.GetComponent<Bubble>();
 
             if (bubble.IsMoving) return;
 
             if (!bubble.IsInitialized)
             {
-                firedBubble.SetActive(true);
+                preppedBubble.SetActive(true);
                 if (!bubble.IsMoving)
                 {
                     InitializeBubble();
@@ -153,7 +163,7 @@ namespace BubbleShooter
         private void InitializeBubble()
         {
             BubbleData randomBubbleData = GetRandomBubbleData();
-            Bubble bubble = firedBubble.GetComponent<Bubble>();
+            Bubble bubble = preppedBubble.GetComponent<Bubble>();
             bubble.InitializeBubble(bubbleSpeed, randomBubbleData);
         }
 

@@ -250,6 +250,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shootTransform: {fileID: 261626472}
+  nextBubbleTransform: {fileID: 1294756276}
   bubblePrefab: {fileID: 802143054622867561, guid: 2b6358148bb7a4649b583fa4505dac52,
     type: 3}
   raycastPath: {fileID: 75424334}
