@@ -167,6 +167,7 @@ public class MatchChecker : MonoBehaviour
         {
             if (neighbor.GetComponent<Bubble>().BubbleData == bubble.GetComponent<Bubble>().BubbleData)
             {
+                //neighbor.IsChecked == true;
                 matches.Add(neighbor);
             }
         }
