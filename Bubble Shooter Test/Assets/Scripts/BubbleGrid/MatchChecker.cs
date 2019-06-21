@@ -19,8 +19,48 @@ public class MatchChecker : MonoBehaviour
 
     private void CheckGrid(GameObject bubble)
     {
-        StartCoroutine(MatchCheckCR(bubble));
+        //StartCoroutine(MatchCheckCR(bubble));
+        GetMatch(bubble.GetComponent<BubbleGridCell>());
     }
+
+    private void GetMatch(BubbleGridCell bubble)
+    {
+        grid.UpdateNeighbors();
+
+        List<BubbleGridCell> neighborsHit = bubble.GetSameNeighbors();
+
+        if(neighborsHit.Count > 2)
+        {
+            bubble.ResetCell();
+            grid.UpdateNeighbors();
+            return;
+        }
+
+        List<BubbleGridCell> exceptionList = new List<BubbleGridCell>(neighborsHit);
+        exceptionList.Add(bubble);
+        
+
+        foreach (BubbleGridCell neighborHit in neighborsHit)
+        {
+            List<BubbleGridCell> childNeighbor = neighborHit.GetSameNeighbors(exceptionList);
+
+            if (!childNeighbor.Any()) continue;
+
+            List<BubbleGridCell> childExceptionList = new List<BubbleGridCell>(exceptionList);
+            childExceptionList.Add(neighborHit);
+
+            List<BubbleGridCell> childNeighborsHit = neighborHit.GetSameNeighbors(childExceptionList);
+
+            if (childNeighborsHit.Any())
+            {
+                bubble.ResetCell();
+                grid.UpdateNeighbors();
+                return;
+            }
+        }
+
+    }
+
 
     private IEnumerator MatchCheckCR(GameObject bubble)
     {
@@ -33,7 +73,7 @@ public class MatchChecker : MonoBehaviour
         grid.UpdateNeighbors();
 
         matches.Clear();
-        
+
         matches.Add(bubbleCell);
 
         while (true)
@@ -45,9 +85,9 @@ public class MatchChecker : MonoBehaviour
             for (int i = matches.Count - 1; i >= 0; i--)
             {
                 if (matches[i].IsChecked) continue;
+
                 matches[i].IsChecked = true;
                 GetInitialMatch(matches[i]);
-                matches = matches.Distinct().ToList();
                 visitedAll = false;
             }
 
@@ -84,7 +124,7 @@ public class MatchChecker : MonoBehaviour
 
     private void CheckForDisconnected()
     {
-        foreach(BubbleGridCell cell in grid.CellGrid)
+        foreach (BubbleGridCell cell in grid.CellGrid)
         {
             Bubble cellBubble = cell.GetComponent<Bubble>();
 

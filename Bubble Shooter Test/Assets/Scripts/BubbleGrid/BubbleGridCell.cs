@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BubbleShooter;
 using UnityEngine;
 
@@ -28,6 +29,7 @@ public struct HexCoordinates
 
     public static bool operator ==(HexCoordinates a, HexCoordinates b)
     {
+
         return a.X == b.X &&
                a.Y == b.Y &&
                a.Z == b.Z;
@@ -37,7 +39,7 @@ public struct HexCoordinates
     {
         return !(a == b);
     }
-     
+
     public override bool Equals(object obj)
     {
         if (!(obj is HexCoordinates))
@@ -75,16 +77,56 @@ public class BubbleGridCell : MonoBehaviour
         set => isChecked = value;
     }
     public List<BubbleGridCell> Neighbors => neighbors;
+    public List<BubbleGridCell> SameNeighbors => SameNeighbors;
 
     [SerializeField] private HexCoordinates coordinates;
-    [SerializeField] private List<BubbleGridCell> neighbors = null;
+    [SerializeField] private List<BubbleGridCell> neighbors = new List<BubbleGridCell>();
     [SerializeField] private bool isChecked = false;
+    [SerializeField] private List<BubbleGridCell> sameNeighbors = new List<BubbleGridCell>();
 
     public void AddNeighbor(BubbleGridCell neighbor)
     {
         if (neighbor == null) return;
         if (neighbors.Contains(neighbor)) return;
 
+        Bubble bubble = GetComponent<Bubble>();
+        Bubble neighborBubble = neighbor.GetComponent<Bubble>();
+
+        if (bubble?.BubbleData?.ColorType == neighborBubble?.BubbleData?.ColorType)
+        {
+            sameNeighbors.Add(neighbor);
+        }
+
+
         neighbors.Add(neighbor);
+    }
+
+    public List<BubbleGridCell> GetSameNeighbors(List<BubbleGridCell> exceptionList = null)
+    {
+        if (exceptionList == null) return sameNeighbors;
+
+        return sameNeighbors.Except(exceptionList).ToList();
+    }
+
+    public void ResetCell()
+    {
+        Bubble cellBubble = GetComponent<Bubble>();
+
+        if (!cellBubble) return;
+
+        cellBubble.ResetBubble();
+
+        for(int i = 0; i< sameNeighbors.Count; i++)
+        {
+            Bubble neighborBubble = sameNeighbors[i].GetComponent<Bubble>();
+            if (!neighborBubble) continue;
+
+            if (neighborBubble.IsInitialized)
+            {
+                sameNeighbors[i].ResetCell();
+            }
+        }
+
+        sameNeighbors.Clear();
     }
 }
