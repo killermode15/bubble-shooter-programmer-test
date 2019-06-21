@@ -211,6 +211,14 @@ public class BubbleGrid : MonoBehaviour
         return nearest;
     }
 
+    public void ResetChecked()
+    {
+        foreach (BubbleGridObject bubble in grid)
+        {
+            bubble.IsChecked = false;
+        }
+    }
+
     #region old code
 
     //private const float HEX_ANGLE = 26.18f;

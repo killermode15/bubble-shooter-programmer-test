@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using BubbleShooter;
+using Unity.Collections;
 using UnityEngine;
 
 public class MatchChecker : MonoBehaviour
 {
     [SerializeField] private BubbleGrid grid = null;
-    [SerializeField] private List<BubbleGridObject> bubbles;
+    [SerializeField] private List<BubbleGridObject> matches;
 
     private void Start()
     {
@@ -18,14 +19,49 @@ public class MatchChecker : MonoBehaviour
     private void CheckGrid(GameObject bubble)
     {
         // TODO: Recursive check for matching neighbors
-        //bubbles = CheckForMatch(bubble.GetComponent<BubbleGridObject>(), new List<BubbleGridObject>());
+        //matches = CheckForMatch(bubble.GetComponent<BubbleGridObject>(), new List<BubbleGridObject>());
 
-        //foreach (BubbleGridObject matchedBubbles in bubbles)
+        //foreach (BubbleGridObject matchedBubbles in matches)
         //{
         //    if (!matchedBubbles) continue;
         //    Bubble bubbleScript = matchedBubbles.GetComponent<Bubble>();
         //    bubbleScript.ResetBubble();
         //}
+
+        #region test code
+        /*
+        matches.Clear();
+
+        grid.ResetChecked();
+
+        List<BubbleGridObject> initialResults = GetMatches(bubble.GetComponent<BubbleGridObject>());
+
+        initialResults.ForEach(x => matches.Add(x));
+
+        while (true)
+        {
+            bool allVisited = true;
+
+            for (int i = matches.Count - 1; i >= 0; i--)
+            {
+                BubbleGridObject matchedBubble = matches[i];
+                if (!matchedBubble.IsChecked)
+                {
+                    AddMatches(GetMatches(matchedBubble));
+                    allVisited = false;
+                }
+            }
+
+            if (!allVisited) continue;
+            if (matches.Count <= 2) continue;
+            foreach (BubbleGridObject foundBubble in matches)
+            {
+                foundBubble.GetComponent<Bubble>().ResetBubble();
+            }
+        }
+        */
+        #endregion
+
     }
 
     public List<BubbleGridObject> CheckForMatch(BubbleGridObject bubbleCell, List<BubbleGridObject> foundNeighbors = null)
@@ -119,6 +155,34 @@ public class MatchChecker : MonoBehaviour
         #endregion
 
         return foundNeighbors;
+    }
+
+    public List<BubbleGridObject> GetMatches(BubbleGridObject bubble)
+    {
+        bubble.IsChecked = true;
+
+        List<BubbleGridObject> matches = new List<BubbleGridObject>();
+
+        foreach (BubbleGridObject neighbor in bubble.Neighbors)
+        {
+            if (neighbor.GetComponent<Bubble>().BubbleData == bubble.GetComponent<Bubble>().BubbleData)
+            {
+                matches.Add(neighbor);
+            }
+        }
+
+        return matches;
+    }
+
+    public void AddMatches(List<BubbleGridObject> matches)
+    {
+        foreach (BubbleGridObject bubble in matches)
+        {
+            if (!this.matches.Contains(bubble))
+            {
+                this.matches.Add(bubble);
+            }
+        }
     }
 
 }
