@@ -25,6 +25,7 @@ public struct HexCoordinates
         return new HexCoordinates(x - y / 2, y);
     }
 
+
     public static bool operator ==(HexCoordinates a, HexCoordinates b)
     {
         return a.X == b.X &&
@@ -35,6 +36,28 @@ public struct HexCoordinates
     public static bool operator !=(HexCoordinates a, HexCoordinates b)
     {
         return !(a == b);
+    }
+     
+    public override bool Equals(object obj)
+    {
+        if (!(obj is HexCoordinates))
+        {
+            return false;
+        }
+
+        var coordinates = (HexCoordinates)obj;
+        return X == coordinates.X &&
+               Y == coordinates.Y &&
+               Z == coordinates.Z;
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = -307843816;
+        hashCode = hashCode * -1521134295 + X.GetHashCode();
+        hashCode = hashCode * -1521134295 + Y.GetHashCode();
+        hashCode = hashCode * -1521134295 + Z.GetHashCode();
+        return hashCode;
     }
 }
 
@@ -64,20 +87,4 @@ public class BubbleGridCell : MonoBehaviour
 
         neighbors.Add(neighbor);
     }
-
-
-    #region old code
-
-    //public List<Transform> Neighbors => neighbors;
-
-    //[SerializeField] private List<Transform> neighbors = new List<Transform>();
-
-
-    //public void AddNeighbor(Transform neighbor)
-    //{
-    //    if (neighbors.Contains(neighbor)) return;
-    //    neighbors.Add(neighbor);
-    //}
-
-    #endregion
 }

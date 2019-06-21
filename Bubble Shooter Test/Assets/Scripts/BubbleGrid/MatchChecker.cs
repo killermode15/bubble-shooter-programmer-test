@@ -62,6 +62,8 @@ public class MatchChecker : MonoBehaviour
         }
         grid.ResetChecked();
         grid.UpdateNeighbors();
+        grid.UpdateConnection();
+        CheckForDisconnected();
     }
 
 
@@ -80,4 +82,17 @@ public class MatchChecker : MonoBehaviour
         }
     }
 
+    private void CheckForDisconnected()
+    {
+        foreach(BubbleGridCell cell in grid.CellGrid)
+        {
+            Bubble cellBubble = cell.GetComponent<Bubble>();
+
+            if (!cellBubble) continue;
+
+            if (cellBubble.IsConnected) continue;
+
+            cellBubble.ResetBubble();
+        }
+    }
 }
