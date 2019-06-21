@@ -4,11 +4,13 @@ namespace BubbleShooter
 {
     public enum BubbleColor
     {
+        Null = -1,
         Red = 0,
         Blue = 1,
         Green = 2,
         Violet = 3,
         Yellow = 4,
+        Random = 5,
     }
 
     [System.Serializable]

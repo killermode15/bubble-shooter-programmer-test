@@ -21,8 +21,16 @@ namespace BubbleShooter
         {
             if (!preppedBubble)
             {
-                preppedBubble = GenerateBubble();
-                //GetNextBubble();
+                if (!nextBubble)
+                {
+                    nextBubble = GenerateBubble();
+                }
+
+                preppedBubble = nextBubble;
+                preppedBubble.transform.SetParent(shootTransform);
+                preppedBubble.transform.localPosition = Vector3.zero;
+                preppedBubble.transform.localScale = bubblePrefab.transform.localScale;
+                GetNextBubble();
             }
 
             if (preppedBubble && preppedBubble.GetComponent<BubbleBullet>().IsMoving) return;
@@ -93,6 +101,9 @@ namespace BubbleShooter
             if (!nextBubbleTransform) throw new NullReferenceException("Next Bubble transform is null");
 
             nextBubble = GenerateBubble();
+            nextBubble.transform.SetParent(nextBubbleTransform);
+            nextBubble.transform.localPosition = Vector3.zero;
+            nextBubble.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
         }
 
         /*

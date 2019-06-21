@@ -12,6 +12,7 @@ namespace BubbleShooter
         public bool IsInitialized => isInitialized;
 
         [SerializeField] private BubbleData bubbleData = null;
+        [SerializeField] private BubbleGrid grid = null;
 
         private bool isMoving = false;
         private bool isInitialized = false;
@@ -20,12 +21,13 @@ namespace BubbleShooter
         private List<Vector3> path = new List<Vector3>();
         private SpriteRenderer spriteRenderer = null;
         private CircleCollider2D circleCollider = null;
-        
+
         // Start is called before the first frame update
         private void Start()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
             circleCollider = GetComponent<CircleCollider2D>();
+            grid = FindObjectOfType<BubbleGrid>();
         }
 
         // Update is called once per frame
@@ -40,6 +42,13 @@ namespace BubbleShooter
 
             // Set the new bubble data
             this.bubbleData = bubbleData;
+
+            // Get SpriteRenderer component if spriteRenderer is null
+            if (spriteRenderer == null)
+                spriteRenderer = GetComponent<SpriteRenderer>();
+
+            // Set the color of the bubble
+            spriteRenderer.color = this.bubbleData.Color;
         }
 
         public void Initialize(float speed, List<Vector3> newPath)
@@ -51,13 +60,6 @@ namespace BubbleShooter
             isInitialized = true;
             // Set the bubble speed
             bubbleSpeed = speed;
-
-            // Get SpriteRenderer component if spriteRenderer is null
-            if (spriteRenderer == null)
-                spriteRenderer = GetComponent<SpriteRenderer>();
-
-            // Set the color of the bubble
-            spriteRenderer.color = this.bubbleData.Color;
 
             // Enable collider
             circleCollider.enabled = true;
@@ -90,12 +92,17 @@ namespace BubbleShooter
 
             hasGeneratedBubble = true;
             Vector2 hitPoint = new Vector2(transform.position.x, transform.position.y);
-            BubbleGridObject cell = FindObjectOfType<BubbleGrid>().FindCell(hitPoint);
+            BubbleGridObject cell = grid.FindCell(hitPoint);
             cell.GetComponent<CircleCollider2D>().enabled = true;
 
             Bubble bubbleScript = cell.GetComponent<Bubble>();
             bubbleScript.SetBubble(bubbleData);
+
             Destroy(gameObject);
+            if (!cell) return;
+
+            EventManager.Instance.OnBubbleHit.Invoke(cell.gameObject);
+
 
         }
 

@@ -9,18 +9,19 @@ namespace BubbleShooter
     public class Bubble : MonoBehaviour
     {
         public bool IsInitialized => isInitialized;
+        public bool BubbleData => bubbleData;
 
-        [SerializeField] private BubbleData bubbleData = null;
+        [SerializeField] private BubbleData bubbleData  = null;
 
-        private bool isInitialized              = false;
-        private SpriteRenderer spriteRenderer   = null;
-        private CircleCollider2D circleCollider       = null;
+        private bool isInitialized                      = false;
+        private SpriteRenderer spriteRenderer           = null;
+        private CircleCollider2D circleCollider         = null;
 
         private void Start()
         {
             circleCollider = GetComponent<CircleCollider2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
-            circleCollider.enabled = false;
+            //circleCollider.enabled = false;
         }
 
         public void ResetBubble()
@@ -48,8 +49,14 @@ namespace BubbleShooter
                 return;
             }
 
+            if (!spriteRenderer)
+                spriteRenderer = GetComponent<SpriteRenderer>();
+
             // Set the bubble data color
             spriteRenderer.color = bubbleData.Color;
+
+            if(!circleCollider)
+                circleCollider = GetComponent<CircleCollider2D>();
 
             // Turn on the circleCollider
             circleCollider.enabled = true;

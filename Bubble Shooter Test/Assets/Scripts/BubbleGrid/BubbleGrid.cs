@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using BubbleShooter;
 using UnityEditor;
 using UnityEngine;
@@ -14,14 +15,15 @@ public class BubbleGrid : MonoBehaviour
 {
     private const int HEX_NEIGHBOR_COUNT = 6;
 
-    [SerializeField] private GameObject bubblePrefab    = null;
-    [SerializeField] private int width                  = 10;
-    [SerializeField] private int height                 = 10;
-    [SerializeField] private float gapSize              = 0.35f;
+    [SerializeField] private GameObject bubblePrefab = null;
+    [SerializeField] private int width = 10;
+    [SerializeField] private int height = 10;
+    [SerializeField] private float gapSize = 0.35f;
+    [SerializeField] private LevelGrid level = null;
 
     private List<BubbleGridObject> grid;
 
-    private void Awake()
+    private void Start()
     {
         grid = new List<BubbleGridObject>();
 
@@ -45,6 +47,77 @@ public class BubbleGrid : MonoBehaviour
         {
             GetNeighbors(cell);
         }
+
+        if (!level) return;
+
+        int originalWidth = width;
+        int offset = 0;
+
+        for (int y = 0; y < height; y++)
+        {
+            if (y % 2 == 0)
+            {
+                width += 1;
+            }
+            else
+            {
+                offset++;
+            }
+            for (int x = 0; x < width; x++)
+            {
+                if (y >= level.Grid.Count) continue;
+                if (level.Grid[y] == null) continue;
+
+
+
+                BubbleColor bubbleColor = level.Grid[y].BubbleDataList[x];
+                BubbleData bubbleData = level.GetBubbleData(bubbleColor);
+                if (!bubbleData) continue;
+
+                int idx = y * originalWidth + x + offset;
+
+
+                grid[idx].GetComponent<Bubble>().SetBubble(bubbleData);
+
+            }
+            if (y % 2 == 0)
+            {
+                width -= 1;
+            }
+        }
+
+
+        #region test
+        /*
+        for (int y = 0, i = 0; y < height; y++)
+        {
+            if (y % 2 == 0)
+            {
+                width ++;
+                i++;
+            }
+
+            if (y % 3 == 0)
+                i++;
+            for (int x = 0; x < width; x++)
+            {
+                if (y >= level.Grid.Count) continue;
+                if (level.Grid[y] == null) continue;
+                BubbleColor bubbleColor = level.Grid[y].BubbleDataList[x];
+                BubbleData bubbleData = level.GetBubbleData(bubbleColor);
+                if (!bubbleData) continue;
+
+                int xIdx = (y % 2 == 0) ? x : x + i;
+                
+                grid[(y * originalWidth) + xIdx].GetComponent<Bubble>().SetBubble(bubbleData);
+            }
+            if (y % 2 == 0)
+            {
+                width --;
+            }
+        }
+        */
+        #endregion
     }
 
     private void CreateCell(int x, int y, int i)
@@ -59,9 +132,8 @@ public class BubbleGrid : MonoBehaviour
         GameObject cell = Instantiate(bubblePrefab);
         // Make cell transparent
         cell.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.15f);
-        // Set the cell as a static bubble
-        //cell.GetComponent<Bubble>().IsStatic = true;
-        //cell.GetComponent<CircleCollider2D>().enabled = false;
+        // Disable 
+        cell.GetComponent<CircleCollider2D>().enabled = false;
 
         // Set the cell's layer same as the component's gameobject
         cell.layer = gameObject.layer;
@@ -97,7 +169,7 @@ public class BubbleGrid : MonoBehaviour
         cell.AddNeighbor(FindCell(cell, 0, -1, 1));
         cell.AddNeighbor(FindCell(cell, 1, -1, 0));
     }
-    
+
     /// <summary>
     /// Finds the cell based on the starting cell and an offset
     /// </summary>
@@ -134,7 +206,7 @@ public class BubbleGrid : MonoBehaviour
 
             closestDistanceSqr = dSqrToTarget;
             nearest = cell;
-        }   
+        }
 
         return nearest;
     }

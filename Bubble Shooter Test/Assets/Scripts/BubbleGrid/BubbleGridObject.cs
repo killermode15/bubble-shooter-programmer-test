@@ -46,8 +46,16 @@ public class BubbleGridObject : MonoBehaviour
         set => coordinates = value;
     }
 
+    public bool IsChecked
+    {
+        get => isChecked;
+        set => isChecked = value;
+    }
+    public List<BubbleGridObject> Neighbors => neighbors;
+
     [SerializeField] private HexCoordinates coordinates;
     [SerializeField] private List<BubbleGridObject> neighbors = null;
+    [SerializeField] private bool isChecked = false;
 
     public void AddNeighbor(BubbleGridObject neighbor)
     {
