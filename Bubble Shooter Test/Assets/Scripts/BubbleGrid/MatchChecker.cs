@@ -57,6 +57,7 @@ public class MatchChecker : MonoBehaviour
             foreach (BubbleGridObject foundBubble in matches)
             {
                 foundBubble.GetComponent<Bubble>().ResetBubble();
+                //Add a break or return here
             }
         }
         */
