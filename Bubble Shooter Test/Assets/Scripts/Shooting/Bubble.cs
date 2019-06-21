@@ -8,11 +8,17 @@ namespace BubbleShooter
 
     public class Bubble : MonoBehaviour
     {
+        public bool IsConnected
+        {
+            get => isConnected;
+            set => isConnected = value;
+        }
         public bool IsInitialized => isInitialized;
-        public bool BubbleData => bubbleData;
+        public BubbleData BubbleData => bubbleData;
 
         [SerializeField] private BubbleData bubbleData  = null;
 
+        private bool isConnected                        = false;
         private bool isInitialized                      = false;
         private SpriteRenderer spriteRenderer           = null;
         private CircleCollider2D circleCollider         = null;
@@ -21,7 +27,6 @@ namespace BubbleShooter
         {
             circleCollider = GetComponent<CircleCollider2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
-            //circleCollider.enabled = false;
         }
 
         public void ResetBubble()
@@ -60,6 +65,8 @@ namespace BubbleShooter
 
             // Turn on the circleCollider
             circleCollider.enabled = true;
+
+            GetComponentInParent<BubbleGrid>().UpdateNeighbors();
         }
 
         #region old code

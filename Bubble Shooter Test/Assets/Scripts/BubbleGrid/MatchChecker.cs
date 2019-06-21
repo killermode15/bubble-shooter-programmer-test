@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using BubbleShooter;
 using Unity.Collections;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine;
 public class MatchChecker : MonoBehaviour
 {
     [SerializeField] private BubbleGrid grid = null;
-    [SerializeField] private List<BubbleGridObject> matches;
+    [SerializeField] private List<BubbleGridCell> matches;
 
     private void Start()
     {
@@ -18,171 +19,63 @@ public class MatchChecker : MonoBehaviour
 
     private void CheckGrid(GameObject bubble)
     {
-        // TODO: Recursive check for matching neighbors
-        //matches = CheckForMatch(bubble.GetComponent<BubbleGridObject>(), new List<BubbleGridObject>());
+        StartCoroutine(MatchCheckCR(bubble));
+    }
 
-        //foreach (BubbleGridObject matchedBubbles in matches)
-        //{
-        //    if (!matchedBubbles) continue;
-        //    Bubble bubbleScript = matchedBubbles.GetComponent<Bubble>();
-        //    bubbleScript.ResetBubble();
-        //}
+    private IEnumerator MatchCheckCR(GameObject bubble)
+    {
+        if (!bubble) yield break;
 
-        #region test code
-        /*
+        BubbleGridCell bubbleCell = bubble.GetComponent<BubbleGridCell>();
+
+        if (!bubbleCell) yield break;
+
+        grid.UpdateNeighbors();
+
         matches.Clear();
-
-        grid.ResetChecked();
-
-        List<BubbleGridObject> initialResults = GetMatches(bubble.GetComponent<BubbleGridObject>());
-
-        initialResults.ForEach(x => matches.Add(x));
+        
+        matches.Add(bubbleCell);
 
         while (true)
         {
-            bool allVisited = true;
+            yield return new WaitForEndOfFrame();
+
+            bool visitedAll = true;
 
             for (int i = matches.Count - 1; i >= 0; i--)
             {
-                BubbleGridObject matchedBubble = matches[i];
-                if (!matchedBubble.IsChecked)
-                {
-                    AddMatches(GetMatches(matchedBubble));
-                    allVisited = false;
-                }
+                if (matches[i].IsChecked) continue;
+                matches[i].IsChecked = true;
+                GetInitialMatch(matches[i]);
+                matches = matches.Distinct().ToList();
+                visitedAll = false;
             }
 
-            if (!allVisited) continue;
+            if (!visitedAll) continue;
             if (matches.Count <= 2) continue;
-            foreach (BubbleGridObject foundBubble in matches)
-            {
-                foundBubble.GetComponent<Bubble>().ResetBubble();
-                //Add a break or return here
-            }
+            if (visitedAll) break;
         }
-        */
-        #endregion
 
+        foreach (BubbleGridCell cell in matches)
+        {
+            cell.GetComponent<Bubble>().ResetBubble();
+        }
+        grid.ResetChecked();
+        grid.UpdateNeighbors();
     }
 
-    public List<BubbleGridObject> CheckForMatch(BubbleGridObject bubbleCell, List<BubbleGridObject> foundNeighbors = null)
+
+    public void GetInitialMatch(BubbleGridCell bubbleCell)
     {
-        if (foundNeighbors == null)
-            foundNeighbors = new List<BubbleGridObject>();
-
-        List<BubbleGridObject> neighbors = bubbleCell.Neighbors;
-
-        foreach (BubbleGridObject neighbor in neighbors)
+        foreach (BubbleGridCell neighbor in bubbleCell.Neighbors)
         {
-            if (neighbor.IsChecked) continue;
-
-            // If the neighbor has no neighbors, it's detached and should be resetted
-            if (neighbor.Neighbors.Count == 0)
-            {
-                neighbor.GetComponent<Bubble>().ResetBubble();
-                continue;
-            }
-            
-
             Bubble neighborBubble = neighbor.GetComponent<Bubble>();
-            Bubble bubble = bubbleCell.GetComponent<Bubble>();
+            Bubble cellBubble = bubbleCell.GetComponent<Bubble>();
 
-            // If the neighbor and the start cell is the same add it to the list
-            if (bubble.BubbleData == neighborBubble.BubbleData)
+            if (neighborBubble?.BubbleData?.ColorType == cellBubble?.BubbleData?.ColorType)
             {
-                neighbor.IsChecked = true;
-                foundNeighbors.Add(neighbor);
-            }
-            else
-            {
-                continue;
-            }
-
-            // Get the neighbor of the neighbor
-            List<BubbleGridObject> childNeighbors = new List<BubbleGridObject>(neighbor.Neighbors);
-            // Remove this cell from the child neighbors
-            childNeighbors.Remove(bubbleCell);
-
-            foreach (BubbleGridObject childNeighbor in childNeighbors)
-            {
-
-                List<BubbleGridObject> foundChildNeighbors = CheckForMatch(childNeighbor, foundNeighbors);
-
-                for (int i = 0; i < foundChildNeighbors.Count; i++)
-                {
-                    Bubble childBubble = foundChildNeighbors[i].GetComponent<Bubble>();
-
-                    if (bubble.BubbleData != childBubble.BubbleData) continue;
-
-                    foundNeighbors.Add(foundChildNeighbors[i]);
-                    //Debug.Log(foundChildNeighbors[i], foundChildNeighbors[i]);
-                }
-            }
-
-            return foundNeighbors;
-
-        }
-
-
-        #region old code
-        //if (bubbleCell.Neighbors.Count == 0) return foundNeighbors;
-
-        //foreach (BubbleGridObject neighbor in bubbleCell.Neighbors)
-        //{
-        //    if (!neighbor) continue;
-        //    Bubble neighborBubble = neighbor.GetComponent<Bubble>();
-        //    Bubble mainBubble = bubbleCell.GetComponent<Bubble>();
-
-        //    if (!mainBubble) continue;
-        //    if (!neighborBubble) continue;
-
-        //    if (mainBubble.BubbleData != neighborBubble.BubbleData) continue;
-
-        //    if (foundNeighbors.Contains(neighbor)) continue;
-
-        //    foundNeighbors.Add(neighbor);
-        //}
-
-        //foreach (BubbleGridObject neighbor in foundNeighbors)
-        //{
-        //    List<BubbleGridObject> neighbors = CheckForMatch(neighbor);
-
-        //    foreach (BubbleGridObject childNeighbors in neighbors)
-        //    {
-        //        if (foundNeighbors.Contains(childNeighbors)) continue;
-        //        foundNeighbors.Add(childNeighbors);
-        //    }
-        //}
-        #endregion
-
-        return foundNeighbors;
-    }
-
-    public List<BubbleGridObject> GetMatches(BubbleGridObject bubble)
-    {
-        bubble.IsChecked = true;
-
-        List<BubbleGridObject> matches = new List<BubbleGridObject>();
-
-        foreach (BubbleGridObject neighbor in bubble.Neighbors)
-        {
-            if (neighbor.GetComponent<Bubble>().BubbleData == bubble.GetComponent<Bubble>().BubbleData)
-            {
-                //neighbor.IsChecked == true;
+                Debug.Log(neighbor, neighbor);
                 matches.Add(neighbor);
-            }
-        }
-
-        return matches;
-    }
-
-    public void AddMatches(List<BubbleGridObject> matches)
-    {
-        foreach (BubbleGridObject bubble in matches)
-        {
-            if (!this.matches.Contains(bubble))
-            {
-                this.matches.Add(bubble);
             }
         }
     }

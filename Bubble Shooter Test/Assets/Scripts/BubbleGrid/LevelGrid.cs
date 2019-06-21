@@ -31,10 +31,10 @@ namespace BubbleShooter
 
         public List<LevelColumn> Grid => grid;
 
-        [SerializeField] private List<BubbleData> bubbleData;
-        [SerializeField] private List<LevelColumn> grid;
-        [SerializeField] private int height;
-        [SerializeField] private int width;
+        [SerializeField] private List<BubbleData> bubbleData = null;
+        [SerializeField] private List<LevelColumn> grid = null;
+        [SerializeField] private int height = 15;
+        [SerializeField] private int width = 8;
 
         public BubbleData GetBubbleData(BubbleColor color)
         {

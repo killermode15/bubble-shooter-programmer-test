@@ -92,7 +92,7 @@ namespace BubbleShooter
 
             hasGeneratedBubble = true;
             Vector2 hitPoint = new Vector2(transform.position.x, transform.position.y);
-            BubbleGridObject cell = grid.FindCell(hitPoint);
+            BubbleGridCell cell = grid.FindCell(hitPoint);
             cell.GetComponent<CircleCollider2D>().enabled = true;
 
             Bubble bubbleScript = cell.GetComponent<Bubble>();

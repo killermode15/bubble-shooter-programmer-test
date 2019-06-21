@@ -38,7 +38,7 @@ public struct HexCoordinates
     }
 }
 
-public class BubbleGridObject : MonoBehaviour
+public class BubbleGridCell : MonoBehaviour
 {
     public HexCoordinates Coordinates
     {
@@ -51,13 +51,13 @@ public class BubbleGridObject : MonoBehaviour
         get => isChecked;
         set => isChecked = value;
     }
-    public List<BubbleGridObject> Neighbors => neighbors;
+    public List<BubbleGridCell> Neighbors => neighbors;
 
     [SerializeField] private HexCoordinates coordinates;
-    [SerializeField] private List<BubbleGridObject> neighbors = null;
+    [SerializeField] private List<BubbleGridCell> neighbors = null;
     [SerializeField] private bool isChecked = false;
 
-    public void AddNeighbor(BubbleGridObject neighbor)
+    public void AddNeighbor(BubbleGridCell neighbor)
     {
         if (neighbor == null) return;
         if (neighbors.Contains(neighbor)) return;

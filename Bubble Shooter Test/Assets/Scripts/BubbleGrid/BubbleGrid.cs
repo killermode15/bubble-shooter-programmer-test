@@ -21,70 +21,16 @@ public class BubbleGrid : MonoBehaviour
     [SerializeField] private float gapSize = 0.35f;
     [SerializeField] private LevelGrid level = null;
 
-    private List<BubbleGridObject> grid;
+    private List<BubbleGridCell> grid;
 
     private void Start()
     {
-        grid = new List<BubbleGridObject>();
+        grid = new List<BubbleGridCell>();
 
-        for (int y = 0, i = 0; y < height; y++)
-        {
-            if (y % 2 == 0)
-            {
-                width += 1;
-            }
-            for (int x = 0; x < width; x++)
-            {
-                CreateCell(x, y, i++);
-            }
-            if (y % 2 == 0)
-            {
-                width -= 1;
-            }
-        }
-
-        foreach (BubbleGridObject cell in grid)
-        {
-            GetNeighbors(cell);
-        }
-
-        if (!level) return;
-
-        int originalWidth = width;
-        int offset = 0;
-
-        for (int y = 0; y < height; y++)
-        {
-            if (y % 2 == 0)
-            {
-                width += 1;
-            }
-            else
-            {
-                offset++;
-            }
-            for (int x = 0; x < width; x++)
-            {
-                if (y >= level.Grid.Count) continue;
-                if (level.Grid[y] == null) continue;
-
-
-
-                BubbleColor bubbleColor = level.Grid[y].BubbleDataList[x];
-                BubbleData bubbleData = level.GetBubbleData(bubbleColor);
-                if (!bubbleData) continue;
-
-                int idx = y * originalWidth + x + offset;
-
-
-                grid[idx].GetComponent<Bubble>().SetBubble(bubbleData);
-
-            }
-            if (y % 2 == 0)
-            {
-                width -= 1;
-            }
-        }
+        SetupGrid();
+        SetupLevel();
+        SetupGridConnection();
+        UpdateNeighbors();
 
 
         #region test
@@ -120,6 +66,75 @@ public class BubbleGrid : MonoBehaviour
         #endregion
     }
 
+
+    private void SetupGrid()
+    {
+        for (int y = 0, i = 0; y < height; y++)
+        {
+            if (y % 2 == 0)
+            {
+                width += 1;
+            }
+            for (int x = 0; x < width; x++)
+            {
+                CreateCell(x, y, i++);
+            }
+            if (y % 2 == 0)
+            {
+                width -= 1;
+            }
+        }
+    }
+
+    private void SetupLevel()
+    {
+        if (!level) return;
+
+        int originalWidth = width;
+        int offset = 0;
+
+        for (int y = 0; y < height; y++)
+        {
+            if (y % 2 == 0)
+            {
+                width += 1;
+            }
+            else
+            {
+                offset++;
+            }
+            for (int x = 0; x < width; x++)
+            {
+                if (y >= level.Grid.Count) continue;
+                if (level.Grid[y] == null) continue;
+
+                BubbleColor bubbleColor = level.Grid[y].BubbleDataList[x];
+                BubbleData bubbleData = level.GetBubbleData(bubbleColor);
+                if (!bubbleData) continue;
+
+                int idx = y * originalWidth + x + offset;
+
+                grid[idx].GetComponent<Bubble>().SetBubble(bubbleData);
+
+            }
+            if (y % 2 == 0)
+            {
+                width -= 1;
+            }
+        }
+    }
+
+    private void SetupGridConnection()
+    {
+        for (int x = 0, i = 0; x < width + 1; x++)
+        {
+            grid[x].GetComponent<Bubble>().IsConnected = true;
+        }
+
+        UpdateConnection();
+    }
+
+
     private void CreateCell(int x, int y, int i)
     {
         // Create the position of the cell
@@ -139,7 +154,7 @@ public class BubbleGrid : MonoBehaviour
         cell.layer = gameObject.layer;
 
         // Add the cell to the list of grid
-        grid.Add(cell.GetComponent<BubbleGridObject>());
+        grid.Add(cell.GetComponent<BubbleGridCell>());
 
         // Set this as the parent of the cell
         cell.transform.SetParent(transform, false);
@@ -159,15 +174,23 @@ public class BubbleGrid : MonoBehaviour
     /// Gets the surrounding cells of one cell
     /// </summary>
     /// <param name="cell"></param>
-    private void GetNeighbors(BubbleGridObject cell)
+    private void GetNeighbors(BubbleGridCell cell)
     {
+        if (!cell.GetComponent<Bubble>().BubbleData) return;
+
         HexCoordinates cellCoordinates = cell.Coordinates;
+
+        cell.Neighbors.Clear();
+
+        cell.AddNeighbor(FindCell(cell, 1, 0, -1));
         cell.AddNeighbor(FindCell(cell, 1, 0, -1));
         cell.AddNeighbor(FindCell(cell, 0, 1, -1));
         cell.AddNeighbor(FindCell(cell, -1, 1, 0));
         cell.AddNeighbor(FindCell(cell, -1, 0, 1));
         cell.AddNeighbor(FindCell(cell, 0, -1, 1));
         cell.AddNeighbor(FindCell(cell, 1, -1, 0));
+
+        cell.Neighbors.RemoveAll(x => x == null);
     }
 
     /// <summary>
@@ -178,11 +201,12 @@ public class BubbleGrid : MonoBehaviour
     /// <param name="y"></param>
     /// <param name="z"></param>
     /// <returns></returns>
-    private BubbleGridObject FindCell(BubbleGridObject start, int x, int y, int z)
+    private BubbleGridCell FindCell(BubbleGridCell start, int x, int y, int z)
     {
         Vector3 checkCoordinate = new Vector3(start.Coordinates.X + x, start.Coordinates.Y + y, start.Coordinates.Z + z);
-        BubbleGridObject foundCell = grid.Find(c => c.Coordinates.VectorCoordinates == checkCoordinate);
-        return foundCell;
+        BubbleGridCell foundCell = grid.Find(c => c.Coordinates.VectorCoordinates == checkCoordinate);
+        if (!foundCell) return null;
+        return foundCell.GetComponent<Bubble>().BubbleData ? foundCell : null;
     }
 
     /// <summary>
@@ -190,12 +214,12 @@ public class BubbleGrid : MonoBehaviour
     /// </summary>
     /// <param name="worldPosition"></param>
     /// <returns></returns>
-    public BubbleGridObject FindCell(Vector2 worldPosition)
+    public BubbleGridCell FindCell(Vector2 worldPosition)
     {
-        BubbleGridObject nearest = null;
+        BubbleGridCell nearest = null;
         float closestDistanceSqr = Mathf.Infinity;
         Vector2 currentPosition = worldPosition;
-        foreach (BubbleGridObject cell in grid)
+        foreach (BubbleGridCell cell in grid)
         {
             if (cell.GetComponent<Bubble>().IsInitialized) continue;
 
@@ -213,99 +237,41 @@ public class BubbleGrid : MonoBehaviour
 
     public void ResetChecked()
     {
-        foreach (BubbleGridObject bubble in grid)
+        foreach (BubbleGridCell bubble in grid)
         {
             bubble.IsChecked = false;
         }
     }
 
-    #region old code
+    public void UpdateConnection()
+    {
+        foreach (BubbleGridCell cell in grid)
+        {
+            Bubble bubble = cell.GetComponent<Bubble>();
 
-    //private const float HEX_ANGLE = 26.18f;
+            if (!bubble) continue;
 
-    //[SerializeField] private GameObject bubblePrefab = null;
-    //[SerializeField] private float row = 10;
-    //[SerializeField] private float column = 10;
-    //[SerializeField] private float gapSize = 0.35f;
+            foreach (BubbleGridCell neighbor in cell.Neighbors)
+            {
+                Bubble neighborBubble = neighbor.GetComponent<Bubble>();
 
-    //private List<List<Transform>> grid;
+                if (!neighborBubble) continue;
 
-    //private void Start()
-    //{
+                if (neighborBubble.IsConnected)
+                {
+                    bubble.IsConnected = true;
+                    break;
+                }
+            }
+        }
+    }
 
-
-    //    grid = new List<List<Transform>>();
-
-    //    SetupGrid();
-    //}
-
-    //private void Update()
-    //{
-
-
-    //    FindNeighbors();
-    //}
-
-    //private void SetupGrid()
-    //{
-    //    for (int y = 0; y < column + 1; y++)
-    //    {
-    //        grid.Add(new List<Transform>());
-    //        for (int x = 0; x < row; x++)
-    //        {
-    //            if (grid[x] == null)
-    //                grid[x] = new List<Transform>();
-
-    //            GameObject gridHolder = Instantiate(bubblePrefab, transform);
-    //            gridHolder.name = "Point [" + x + "] [" + y + "]";
-    //            gridHolder.GetComponent<CircleCollider2D>().enabled = true;
-
-    //            float newX = (y % 2 == 0) ? (x - (gapSize / 2)) * gapSize : x * gapSize;
-
-    //            gridHolder.transform.position = new Vector3(newX, y * gapSize, 0);
-
-    //            grid[x].Add(gridHolder.transform);
-    //        }
-    //    }
-    //}
-
-    //private void FindNeighbors()
-    //{
-    //    for (int y = 0; y < column + 1; y++)
-    //    {
-    //        for (int x = 0; x < row; x++)
-    //        {
-    //            Transform gameObject = grid[x][y];
-    //            if (!gameObject) return;
-    //            BubbleGridObject gridObject = gameObject.GetComponent<BubbleGridObject>();
-    //            if (!gridObject) return;
-
-    //            for (int i = 0; i < 6; i++)
-    //            {
-    //                float radius = gapSize;
-
-    //                float newX = radius * Mathf.Cos(HEX_ANGLE * i);
-    //                float newY = radius * Mathf.Sin(HEX_ANGLE * i);
-
-    //                Vector2 newPosition = new Vector3(newX, newY) + gameObject.position;
-    //                Vector2 direction = newPosition - new Vector2(gameObject.position.x, gameObject.position.y);
-
-    //                Debug.DrawRay(gameObject.position, direction);
-
-    //                RaycastHit2D hit = Physics2D.Raycast(newPosition, direction);
-
-    //                if (!hit.collider) continue;
-
-    //                BubbleGridObject detectedBubble = hit.collider.GetComponent<BubbleGridObject>();
-    //                if (!detectedBubble) continue;
-
-    //                gridObject.AddNeighbor(detectedBubble.transform);
-    //            }
-
-
-    //        }
-    //    }
-    //}
-
-    #endregion
+    public void UpdateNeighbors()
+    {
+        foreach (BubbleGridCell cell in grid)
+        {
+            cell.Neighbors.Clear();
+            GetNeighbors(cell);
+        }
+    }
 }
