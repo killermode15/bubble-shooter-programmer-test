@@ -8,18 +8,12 @@ namespace BubbleShooter
 
     public class Bubble : MonoBehaviour
     {
-        public bool IsConnected
-        {
-            get => isConnected;
-            set => isConnected = value;
-        }
         public bool IsInitialized => isInitialized;
         public BubbleData BubbleData => bubbleData;
 
         [SerializeField] private BubbleData bubbleData  = null;
-
-        private bool isConnected                        = false;
-        private bool isInitialized                      = false;
+        
+        [SerializeField] private bool isInitialized                      = false;
         private SpriteRenderer spriteRenderer           = null;
         private CircleCollider2D circleCollider         = null;
 

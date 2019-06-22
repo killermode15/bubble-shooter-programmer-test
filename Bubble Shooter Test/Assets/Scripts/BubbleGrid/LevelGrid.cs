@@ -38,6 +38,13 @@ namespace BubbleShooter
 
         public BubbleData GetBubbleData(BubbleColor color)
         {
+            if (color == BubbleColor.Null) return null;
+            if(color == BubbleColor.Random)
+            {
+                int idx = Random.Range(0, bubbleData.Count);
+                return bubbleData[idx];
+            }
+
             return bubbleData.Find(x => x.ColorType == color);
         }
 

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 436b36637447ac8439e25eb51a49215e, type: 3}
+  m_Name: Test Level
+  m_EditorClassIdentifier: 
+  bubbleData:
+  - {fileID: 11400000, guid: 0dd8c52a8efd36d4198a7de2c16f0f87, type: 2}
+  - {fileID: 11400000, guid: db92530a20be1064cad09551bb7b8a1f, type: 2}
+  - {fileID: 11400000, guid: 30788953f944aa644b417572c1e598ce, type: 2}
+  - {fileID: 11400000, guid: 37cddeb309b373048954e8164a43400d, type: 2}
+  - {fileID: 11400000, guid: fc8049f20c15305448ce4b2d077df866, type: 2}
+  grid:
+  - rowName: Column [1]
+    bubbleDataList: 000000000100000000000000010000000000000001000000000000000100000000000000
+  - rowName: Column [2]
+    bubbleDataList: 0100000001000000010000000200000002000000010000000100000001000000
+  - rowName: Column [3]
+    bubbleDataList: 030000000300000003000000030000000300000003000000030000000300000003000000
+  - rowName: Column [4]
+    bubbleDataList: 0200000002000000020000000200000002000000020000000200000002000000
+  - rowName: Column [5]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [6]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [7]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [8]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [9]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [10]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [11]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [12]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [13]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [14]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - rowName: Column [15]
+    bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  height: 15
+  width: 8

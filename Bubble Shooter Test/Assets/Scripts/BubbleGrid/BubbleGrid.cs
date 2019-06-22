@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using BubbleShooter;
 using UnityEditor;
 using UnityEngine;
@@ -34,7 +35,6 @@ public class BubbleGrid : MonoBehaviour
         UpdateConnection();
         UpdateNeighbors();
     }
-
 
     private void SetupGrid()
     {
@@ -97,10 +97,9 @@ public class BubbleGrid : MonoBehaviour
     {
         for (int x = 0; x < width + 1; x++)
         {
-            grid[x].GetComponent<Bubble>().IsConnected = true;
+            grid[x].IsConnected = true;
         }
     }
-
 
     private void CreateCell(int x, int y, int i)
     {
@@ -214,15 +213,46 @@ public class BubbleGrid : MonoBehaviour
     {
         foreach(BubbleGridCell cell in grid)
         {
-            Bubble bubble = cell.GetComponent<Bubble>();
-
-            if (!bubble) continue;
-
-            bubble.IsConnected = false;
+            cell.IsConnected = false;
         }
 
         SetFirstRowConnection();
 
+        int originalWidth = width;
+        int offset = 0;
+
+        for (int y = 1; y < height-1; y++)
+        {
+            if (y % 2 == 0)
+            {
+                width += 1;
+            }
+            else
+            {
+                offset++;
+            }
+            for (int x = 0; x < width; x++)
+            {
+                int idx = y * originalWidth + x + offset;
+
+                if (idx >= grid.Count) return;
+
+                Bubble bubble = grid[idx].GetComponent<Bubble>();
+                if (!bubble) continue;
+
+                if(grid[idx].Neighbors.Any(n => n.IsConnected))
+                {
+                    grid[idx].IsConnected = true;
+                }
+            }
+            if (y % 2 == 0)
+            {
+                width -= 1;
+            }
+        }
+
+
+        /*
         foreach (BubbleGridCell cell in grid)
         {
             Bubble bubble = cell.GetComponent<Bubble>();
@@ -242,6 +272,7 @@ public class BubbleGrid : MonoBehaviour
                 }
             }
         }
+        */
     }
 
     public void UpdateNeighbors()
@@ -253,43 +284,49 @@ public class BubbleGrid : MonoBehaviour
         }
     }
 
-    public List<BubbleGridCell> GetDisconnected()
+    public void ResetDisconnectedCells()
     {
-        List<BubbleGridCell> disconnectedCells = new List<BubbleGridCell>();
-
-        int originalWidth = width;
-        int offset = 0;
-
-        for (int y = 0; y < height; y++)
+        foreach(BubbleGridCell cell in grid)
         {
-            if (y % 2 == 0)
-            {
-                width += 1;
-            }
-            else
-            {
-                offset++;
-            }
-            for (int x = 0; x < width; x++)
-            {
-                if (y >= level.Grid.Count) continue;
-                if (level.Grid[y] == null) continue;
+            Bubble cellBubble = cell.GetComponent<Bubble>();
+            if (!cellBubble) continue;
 
-                BubbleColor bubbleColor = level.Grid[y].BubbleDataList[x];
-                BubbleData bubbleData = level.GetBubbleData(bubbleColor);
-                if (!bubbleData) continue;
-
-                int idx = y * originalWidth + x + offset;
-
-                grid[idx].GetComponent<Bubble>().SetBubble(bubbleData);
-
-            }
-            if (y % 2 == 0)
-            {
-                width -= 1;
-            }
+            cellBubble.ResetBubble();
         }
 
-        return disconnectedCells;
+
+        //int originalWidth = width;
+        //int offset = 0;
+
+        //for (int y = 0; y < height; y++)
+        //{
+        //    if (y % 2 == 0)
+        //    {
+        //        width += 1;
+        //    }
+        //    else
+        //    {
+        //        offset++;
+        //    }
+        //    for (int x = 0; x < width; x++)
+        //    {
+        //        if (y >= level.Grid.Count) continue;
+        //        if (level.Grid[y] == null) continue;
+
+        //        BubbleColor bubbleColor = level.Grid[y].BubbleDataList[x];
+        //        BubbleData bubbleData = level.GetBubbleData(bubbleColor);
+        //        if (!bubbleData) continue;
+
+        //        int idx = y * originalWidth + x + offset;
+
+        //        grid[idx].GetComponent<Bubble>().SetBubble(bubbleData);
+
+        //    }
+        //    if (y % 2 == 0)
+        //    {
+        //        width -= 1;
+        //    }
+        //}
+
     }
 }

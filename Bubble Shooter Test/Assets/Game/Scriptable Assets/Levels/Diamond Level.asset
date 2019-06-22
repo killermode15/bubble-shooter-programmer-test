@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 436b36637447ac8439e25eb51a49215e, type: 3}
-  m_Name: Test 1
+  m_Name: Diamond Level
   m_EditorClassIdentifier: 
   bubbleData:
   - {fileID: 11400000, guid: 0dd8c52a8efd36d4198a7de2c16f0f87, type: 2}
@@ -20,13 +20,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fc8049f20c15305448ce4b2d077df866, type: 2}
   grid:
   - rowName: Column [1]
-    bubbleDataList: 000000000100000000000000010000000000000001000000000000000100000000000000
+    bubbleDataList: 0400000004000000ffffffffffffffff05000000ffffffffffffffff0400000004000000
   - rowName: Column [2]
-    bubbleDataList: 0100000001000000010000000200000002000000010000000100000001000000
+    bubbleDataList: 00000000ffffffffffffffff0500000005000000ffffffffffffffff00000000
   - rowName: Column [3]
-    bubbleDataList: 030000000300000003000000030000000300000003000000030000000300000003000000
+    bubbleDataList: 00000000ffffffffffffffff050000000500000005000000ffffffffffffffff00000000
   - rowName: Column [4]
-    bubbleDataList: 0200000002000000020000000200000002000000020000000200000002000000
+    bubbleDataList: ffffffffffffffff05000000050000000500000005000000ffffffffffffffff
   - rowName: Column [5]
     bubbleDataList: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
   - rowName: Column [6]

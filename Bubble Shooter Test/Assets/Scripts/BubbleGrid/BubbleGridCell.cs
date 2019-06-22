@@ -77,11 +77,17 @@ public class BubbleGridCell : MonoBehaviour
         set => isChecked = value;
     }
     public List<BubbleGridCell> Neighbors => neighbors;
-    public List<BubbleGridCell> SameNeighbors => SameNeighbors;
+    public List<BubbleGridCell> SameNeighbors => sameNeighbors.Distinct().ToList();
+    public bool IsConnected
+    {
+        get => isConnected;
+        set => isConnected = value;
+    }
 
+    [SerializeField] private bool isChecked = false;
+    [SerializeField] private bool isConnected;
     [SerializeField] private HexCoordinates coordinates;
     [SerializeField] private List<BubbleGridCell> neighbors = new List<BubbleGridCell>();
-    [SerializeField] private bool isChecked = false;
     [SerializeField] private List<BubbleGridCell> sameNeighbors = new List<BubbleGridCell>();
 
     public void AddNeighbor(BubbleGridCell neighbor)

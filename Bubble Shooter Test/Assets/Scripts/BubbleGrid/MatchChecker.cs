@@ -33,6 +33,8 @@ public class MatchChecker : MonoBehaviour
         {
             bubble.ResetCell();
             grid.UpdateNeighbors();
+            grid.UpdateConnection();
+            CheckForDisconnected();
             return;
         }
 
@@ -55,12 +57,13 @@ public class MatchChecker : MonoBehaviour
             {
                 bubble.ResetCell();
                 grid.UpdateNeighbors();
+                grid.UpdateConnection();
+                CheckForDisconnected();
                 return;
             }
         }
 
     }
-
 
     private IEnumerator MatchCheckCR(GameObject bubble)
     {
@@ -130,7 +133,7 @@ public class MatchChecker : MonoBehaviour
 
             if (!cellBubble) continue;
 
-            if (cellBubble.IsConnected) continue;
+            if (cell.IsConnected) continue;
 
             cellBubble.ResetBubble();
         }
