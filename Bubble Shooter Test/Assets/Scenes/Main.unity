@@ -347,6 +347,7 @@ GameObject:
   - component: {fileID: 361234224}
   - component: {fileID: 361234223}
   - component: {fileID: 361234222}
+  - component: {fileID: 361234225}
   m_Layer: 0
   m_Name: Shooter
   m_TagString: Untagged
@@ -395,6 +396,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 37cddeb309b373048954e8164a43400d, type: 2}
   - {fileID: 11400000, guid: fc8049f20c15305448ce4b2d077df866, type: 2}
   shootSpeed: 0.15
+  mouseDistanceToShoot: 1
 --- !u!114 &361234223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,6 +430,22 @@ MonoBehaviour:
   RaycastMask:
     serializedVersion: 2
     m_Bits: 311
+--- !u!58 &361234225
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 361234220}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,7 +668,7 @@ GameObject:
   - component: {fileID: 829262325}
   m_Layer: 0
   m_Name: Bottom
-  m_TagString: Untagged
+  m_TagString: Bottom Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

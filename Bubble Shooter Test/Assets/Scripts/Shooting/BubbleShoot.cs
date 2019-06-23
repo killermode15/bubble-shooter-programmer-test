@@ -13,9 +13,33 @@ namespace BubbleShooter
         [SerializeField] private RaycastPath raycastPath = null;
         [SerializeField] private List<BubbleData> bubbleDatas = null;
         [SerializeField] private float shootSpeed = 0.15f;
+        [SerializeField] private float mouseDistanceToShoot = 2.0f;
 
         private GameObject preppedBubble;
         private GameObject nextBubble;
+
+
+        private void OnMouseDown()
+        {
+            SwitchBubbles();
+        }
+
+        private void SwitchBubbles()
+        {
+            GameObject currentBubble = preppedBubble;
+            preppedBubble = nextBubble;
+
+            preppedBubble.transform.SetParent(shootTransform);
+            preppedBubble.transform.localPosition = Vector3.zero;
+            preppedBubble.transform.localScale = bubblePrefab.transform.localScale;
+
+            nextBubble = currentBubble;
+
+
+            nextBubble.transform.SetParent(nextBubbleTransform);
+            nextBubble.transform.localPosition = Vector3.zero;
+            nextBubble.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
+        }
 
         private void Update()
         {
@@ -35,8 +59,17 @@ namespace BubbleShooter
 
             if (preppedBubble && preppedBubble.GetComponent<BubbleBullet>().IsMoving) return;
 
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            float mouseDist = Vector2.Distance(shootTransform.position, mousePos);
+            if (mouseDist < mouseDistanceToShoot)
+            {
+                raycastPath.ResetPath();
+                return;
+            }
+
             if (Input.GetMouseButton(0))
             {
+                
                 raycastPath.GeneratePath(Input.mousePosition);
             }
             else if (Input.GetMouseButtonUp(0))

@@ -7,6 +7,7 @@ TagManager:
   - Side Wall
   - Bubble
   - Top Wall
+  - Bottom Wall
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - 
   - Bubbles
   - BubbleGrid
-  - 
+  - Shooter
   - 
   - 
   - 

@@ -86,6 +86,11 @@ namespace BubbleShooter
 
             if (!hit) return;
 
+            if(hit.CompareTag("Bottom Wall"))
+            {
+                Destroy(gameObject);
+            }
+
             if (!(hit.CompareTag("Top Wall") || hit.CompareTag("Bubble"))) return;
 
             if (hasGeneratedBubble) return;
